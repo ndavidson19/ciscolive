@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with LLM Model</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+        #chat-container {
+            margin: auto;
+            width: 60%;
+        }
+        #chat-box {
+            border: 2px solid #0088cc;
+            height: 500px;
+            overflow-y: scroll;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        #user-input {
+            width: 70%;
+            padding: 10px;
+            margin-right: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #0088cc;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #005f99;
+        }
+        h1 {
+            color: #0088cc;
+        }
+    </style>
+</head>
+<body>
+    <h1>Chat with Cisco DevNet</h1>
+    <div id="chat-container">
+        <div id="chat-box"></div>
+        <input type="text" id="user-input" placeholder="Type a message...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+        async function sendMessage() {
+            const inputBox = document.getElementById('user-input');
+            const chatBox = document.getElementById('chat-box');
+            
+            // Display user message
+            chatBox.innerHTML += `<div>User: ${inputBox.value}</div>`;
+            
+            // Fetch model response
+            const response = await fetch('http://127.0.0.1:5000/get_message', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({text: inputBox.value})
+            });
+            const data = await response.json();
+            
+            // Display model response
+            chatBox.innerHTML += `<div>Bot: ${data.message}</div>`;
+
+            // Display context from DB
+            chatBox.innerHTML += `<div>Source: ${data.context}</div>`;
+
+            // Add a empty div as a newline
+            chatBox.innerHTML += `<div></div>`
+            
+            // Clear input box
+            inputBox.value = '';
+        }
+    </script>
+</body>
+</html>
