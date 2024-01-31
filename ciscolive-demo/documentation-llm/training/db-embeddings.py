@@ -6,22 +6,13 @@ from sentence_transformers import SentenceTransformer
 from psycopg2 import sql
 import re
 
-# Database connection parameters
-# TODO: add env variables
-DATABASE_HOST = os.environ.get('DATABASE_HOST')
-DATABASE_PORT = os.environ.get('DATABASE_PORT')
-DATABASE_USER = os.environ.get('DATABASE_USER')
-DATABASE_PASSWORD = os.environ.get('DATABASE_PASSWORD')
-DATABASE_NAME = os.environ.get('DATABASE_NAME')
-
-
 def create_database(db_name, host="localhost", port="5432"):
     '''
     Creates a database if one has not been created yet
     For initialization
     '''
     # Connect to the PostgreSQL server
-    conn = psycopg2.connect(database="postgres", host=host, port=port)
+    conn = psycopg2.connect(database="postgres", user=user, password=password, host=host, port=port)
     conn.autocommit = True  # Enable autocommit mode to execute the CREATE DATABASE command
 
     # Create a new cursor
@@ -43,148 +34,146 @@ db_params = {
     'host': '127.0.0.1',
     'port': '5432'
 }
-
-create_database('cisco_embeddings', '127.0.0.1', '5432')
-
  
 def read_text_file(file_path):
     with open(file_path, 'r', encoding='utf-8') as file:
         return file.readlines()
 
+def generate_embeddings_for_parts(sources, headers, contents):
+    source_embeddings = generate_embeddings(sources)
+    header_embeddings = generate_embeddings(headers)
+    content_embeddings = generate_embeddings(contents)
+    return source_embeddings, header_embeddings, content_embeddings
 
 def generate_embeddings(sentences, model_name='paraphrase-MiniLM-L6-v2'):
     model = SentenceTransformer(model_name)
     embeddings = model.encode(sentences)
     return embeddings
 
-
 def segment_and_embed_content(file_path):
-    '''
-    This function does the main preprocessing.
-    The idea is our format in cleaned_docs.txt is Source \n Header \n Content \n\n
-    This is the logic behind seperating the text:
-    1. we want a shortform text without the source and header to give to the model as context
-        this reduces context size and unnessessary repition
-    2. we want a longform text that includes the source and header for ease of search and for more accurate doc retrieval
-    '''
     with open(file_path, 'r') as f:
         lines = f.readlines()
 
-    full_texts = []
-    short_texts = []
+    sources = []
+    headers = []
+    contents = []
+
     i = 0
     while i < len(lines):
-        source = lines[i].strip() if i < len(lines) else None
-        header = lines[i+1].strip() if i+1 < len(lines) else None
-        content = lines[i+2].strip() if i+2 < len(lines) else None
+        if lines[i].strip().startswith("Source:"):
+            source = lines[i].strip()
+            sources.append(source)
+            i += 1
+            while i < len(lines) and not lines[i].strip().startswith("Source:"):
+                header = lines[i].strip()
+                headers.append(header)
+                i += 1
+                content = []
+                while i < len(lines) and not lines[i].strip().startswith("Source:") and not lines[i].strip() == '':
+                    content.append(lines[i].strip())
+                    i += 1
+                contents.append(' '.join(content))
+        else:
+            i += 1
 
-        if source and header and content:
-            # Segment the content
-            segmented_contents = segment_content(content)
-            for segment in segmented_contents:
-                full_texts.append(f"{source} - {header}: {segment}")
-                short_texts.append(segment)
+    return sources, headers, contents
 
-        i += 4  # increment to skip the empty line and move to the next source
+def segment_file(file_path):
+    with open(file_path, 'r') as f:
+        lines = [line.strip() for line in f.readlines() if line.strip()]
+    
+    data = []
 
-    # Generate embeddings for the full texts 
-    embeddings = generate_embeddings(full_texts)
+    i = 0
+    while i < len(lines):
+        # Debugging: Print the current line being processed
+        print(f"Processing line {i}: {lines[i]}")
 
-    return full_texts, short_texts, embeddings
+        # Check for the source
+        if lines[i].startswith("Source:"):
+            source = lines[i] + " " + lines[i+1]
+            print(f"Found source: {source}")
+            i += 2  # Move past the source lines
+            
+            headers_for_current_source = []
+            contents_for_current_source = []
+
+            # Continue with headers and their content until the next "Source:"
+            while i < len(lines) and not lines[i].startswith("Source:") and len(lines[i].split()) <= 10:
+                header = lines[i]
+                print(f"Found header: {header}")
+                i += 1
+                
+                content = lines[i] if i < len(lines) else ""  # Ensure we don't go out of index
+                print(f"Found content: {content}")
+                i += 1
+
+                headers_for_current_source.append(header)
+                contents_for_current_source.append(content)
+            source_embeddings, header_embeddings, content_embeddings = embed_parts(source, headers_for_current_source, contents_for_current_source)
+            data.append({
+                'source': source,
+                'headers': headers_for_current_source,
+                'contents': contents_for_current_source,
+                'source_embedding': source_embeddings,  
+                'header_embeddings': header_embeddings,  
+                'content_embeddings': content_embeddings  
+            })
+        else:
+            i += 1  # Move past any unexpected lines
+
+    return data
 
 
-def segment_content(content, max_sentences=3):
-    '''
-    This function works to find step patterns and preserve relative positioning i.e. 1. 2. 3. types of steps
-    '''
-    # Define step pattern
-    step_pattern = r'(?:\d+\.\s|(?<=\s)[a-zA-Z]\.\s)'
 
-    # If the content seems to be composed mainly of steps
-    if len(re.findall(step_pattern, content)) > len(content) / 200: # 200 characters assumption
-        # Split based on step pattern
-        segments = re.split(step_pattern, content)
-        segments = [segment.strip() for segment in segments if segment]
-        segments = [f"{idx+1}. {segment}" for idx, segment in enumerate(segments)]
-    else:
-        # Tokenize content into sentences
-        sentences = nltk.sent_tokenize(content)
-        segments = []
-        i = 0
+def embed_parts(sources, headers, contents):
+    return generate_embeddings(sources), generate_embeddings(headers), generate_embeddings(contents)
 
-        while i < len(sentences):
-            segment = sentences[i:i+max_sentences]
-            segments.append(' '.join(segment))
-            i += len(segment)
+def insert_into_db(data):
+    with psycopg2.connect(**db_params) as conn:
+        with conn.cursor() as cur:
+            # Create pgvector extension if not exists
+            cur.execute("CREATE EXTENSION IF NOT EXISTS vector;")
+            
+            # Drop the existing table (if it exists)
+            cur.execute("DROP TABLE IF EXISTS embeddings;")
+            
+            # Create the embeddings table (if it doesn't exist)
+            embedding_dim = len(data[0]['source_embedding'])
+            create_table_query = f"""
+            CREATE TABLE IF NOT EXISTS embeddings (
+                id serial PRIMARY KEY,
+                source TEXT,
+                header TEXT,
+                content TEXT,
+                source_vector VECTOR({embedding_dim}),
+                header_vector VECTOR({embedding_dim}),
+                content_vector VECTOR({embedding_dim})
+            );
+            """
+            cur.execute(create_table_query)
 
-    return segments
-
-
-#sentences = generate_paragraph_embeddings('./cleaned_file.txt')
-full_texts, short_texts, embeddings = segment_and_embed_content('./cleaned_file.txt')
-
-# Initialize a connection without connecting to a particular database
-initial_db_params = db_params.copy()
-initial_db_params['dbname'] = 'postgres'  # connect to the default 'postgres' database
-
-# Connect to the PostgreSQL instance
-conn = psycopg2.connect(**initial_db_params)
-conn.autocommit = True
-cur = conn.cursor()
-
-# Check if the cisco_embeddings database already exists
-cur.execute("SELECT 1 FROM pg_database WHERE datname='cisco_embeddings'")
-exists = cur.fetchone()
-if not exists:
-    cur.execute("CREATE DATABASE cisco_embeddings")
-
-# Close the initial connection
-cur.close()
-conn.close()
-
-# Connect to the PostgreSQL instance itself
-with psycopg2.connect(**db_params) as conn:
-    conn.autocommit = True
-    with conn.cursor() as cur:
-        # Create the cisco_embeddings database if it doesn't exist
-        cur.execute("SELECT 1 FROM pg_database WHERE datname='cisco_embeddings'")
-        exists = cur.fetchone()
-        if not exists:
-            cur.execute("CREATE DATABASE cisco_embeddings")
+            for item in data:
+                s = item['source']
+                se = item['source_embedding']
+                for h, c, he, ce in zip(item['headers'], item['contents'], item['header_embeddings'], item['content_embeddings']):
+                    cur.execute(
+                        "INSERT INTO embeddings (source, header, content, source_vector, header_vector, content_vector) VALUES (%s, %s, %s, %s, %s, %s);", 
+                        (s, h, c, se.tolist(), he.tolist(), ce.tolist())
+                    )
             conn.commit()
+            print("Successfully inserted embeddings into DB")
 
-# Connect to the PostgreSQL database
-with psycopg2.connect(**db_params) as conn:
-    with conn.cursor() as cur:
-        # Create pgvector extension if not exists
-        cur.execute("CREATE EXTENSION IF NOT EXISTS vector;")
+def main():
+    create_database('cisco_embeddings', '127.0.0.1', '5432')
 
-        # Drop the existing table (if it exists)
-        drop_table_query = """
-        DROP TABLE IF EXISTS embeddings;
-        """
-        cur.execute(drop_table_query)
-        
-        # Create the embeddings table (if it doesn't exist)
-        print(embeddings.shape)
-        print(embeddings.shape[1])
-        embedding_dim = embeddings.shape[1]  # Assuming embeddings shape is [N, D]
-        create_table_query = f"""
-        CREATE TABLE IF NOT EXISTS embeddings (
-            id serial PRIMARY KEY,
-            full_text TEXT,
-            short_text TEXT,
-            vector VECTOR({embedding_dim})
-        );
-        """
-        cur.execute(create_table_query)
+    # 1. Segment the file content
+    data = segment_file('./cleaned_file.txt')
 
-        # Insert embeddings into the table
-        for full_text, short_text, embedding in zip(full_texts, short_texts, embeddings):
-            embedding_list = embedding.tolist()
-            print(full_text)
-            cur.execute("INSERT INTO embeddings (full_text, short_text, vector) VALUES (%s, %s, %s);", (full_text, short_text, embedding_list))
+    # 3. Insert into the database
+    insert_into_db(data)
+    
+if __name__ == "__main__":
+    main()
 
-        conn.commit()
 
-print("Embeddings inserted into the database successfully!")
