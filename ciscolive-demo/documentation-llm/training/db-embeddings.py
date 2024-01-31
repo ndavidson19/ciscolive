@@ -12,7 +12,7 @@ def create_database(db_name, host="localhost", port="5432"):
     For initialization
     '''
     # Connect to the PostgreSQL server
-    conn = psycopg2.connect(database="postgres", user=user, password=password, host=host, port=port)
+    conn = psycopg2.connect(database="postgres", host=host, port=port)
     conn.autocommit = True  # Enable autocommit mode to execute the CREATE DATABASE command
 
     # Create a new cursor

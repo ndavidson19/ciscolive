@@ -8,18 +8,7 @@ A demo application showcasing how to run a local LLM on your own hardware. Inclu
 
 First go into project directory
 ```
-cd documentation-llm
-```
-
-We need to select a model to use. For this demo we will use the base LLaMa-2 model. You are encouraged to use Huggingface Leaderboards to find the best model for your usecase. 
-
-Model link: https://huggingface.co/TheBloke/Llama-2-7B-GGML/blob/main/llama-2-7b.ggmlv3.q4_0.bin 
-
-Once downloaded, make a llm directory in /documentation-llm/backend and place in the downloaded modelfile.
-
-```
-cd backend
-mkdir llm
+cd /cisco-live/documentation-llm
 ```
 
 ### Install requirements
@@ -35,25 +24,33 @@ source venv_name/bin/activate
 pip install -r requirements.txt
 ```
 
+Next you must download the modelfile. We are using LlaMa-2 chat quantized to 4-bit by TheBloke.
+https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGUF/blob/main/llama-2-7b-chat.Q4_K_M.gguf
+
+Next move the modelfile to the correct directory /cisco-live/documentation-llm/backend/llm/llama-2-7b-chat.Q4_K_M.gguf
+```
+cd /cisco-live/documentation-llm/backend
+mkdir llm
+```
+
 ### Pull docker image for the postgres vector database
 This image has the pgvector extension for postgres that allows for fast vector embeddings and lookups.
 Make sure you have docker installed. https://docs.docker.com/engine/install/
+Use a new terminal window to run the following commands.
 
 ```
 docker pull ankane/pgvector
-docker run -p 5432:5432 -e POSTGRES_PASSWORD=secret -e POSTGRES_USER=postgres ankane/pgvector
+docker run -p 5432:5432 -e POSTGRES_HOST_AUTH_METHOD=trust ankane/pgvector
 ```
 
 ## Usage (required)
 
 ### Training Pipeline 
-This module contains four scripts that parse pdfs to text, clean the text, create vectorized embeddings, and insert the embeddings into the postgres database. 
+This module contains two scripts that parse pdfs to text, clean the text, create vectorized embeddings, and insert the embeddings into the postgres database. 
 ---
 ```
 cd training
 python pdf.py
-python clean.py
-python embeddings.py
 python db-embeddings.py
 ```
 Once inserted make sure your docker image and daemon are running in order for the retrieval process to work.
@@ -68,7 +65,13 @@ python main.py
 ```
 
 ### Load UI (html)
-To load the UI you just need to open the index.html file that lives in the /docuementation/ui directory. 
+Run the below command in the root directory of the project.
+```
+python -m http.server
+```
+Navigate to http://localhost:8000/ in your browser.
+To load the UI you just need to open the index.html file that lives in the cisco-live/documentation-llm/ui directory. 
+
 You should be all set to start asking questions!
 
 ## Licensing info
