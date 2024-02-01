@@ -6,9 +6,10 @@ A demo application showcasing how to run a local LLM on your own hardware. Inclu
 
 ## Installation
 
-First go into project directory
+First clone the project and navigate into project directory
 ```
-cd /cisco-live/documentation-llm
+git clone https://github.com/ndavidson19/ciscolive.git
+cd /ciscolive-demo/documentation-llm
 ```
 
 ### Install requirements
