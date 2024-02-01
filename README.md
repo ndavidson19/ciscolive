@@ -9,7 +9,7 @@ A demo application showcasing how to run a local LLM on your own hardware. Inclu
 First clone the project and navigate into project directory
 ```
 git clone https://github.com/ndavidson19/ciscolive.git
-cd /ciscolive-demo/documentation-llm
+cd ciscolive/ciscolive-demo/documentation-llm
 ```
 
 ### Install requirements
