@@ -63,7 +63,6 @@ pillow==10.2.0
 portalocker==2.8.2
 psutil==5.9.5
 psycopg2-binary==2.9.7
-psycopg2
 py-cpuinfo==9.0.0
 pyarrow==15.0.0
 pycparser==2.21
@@ -93,7 +92,7 @@ sympy==1.12
 threadpoolctl==3.2.0
 tiktoken==0.5.1
 tokenizers==0.15.0
-torch==2.2.0
+torch==2.0.1
 torchvision==0.15.2
 tqdm==4.64.1
 transformers==4.37.2
