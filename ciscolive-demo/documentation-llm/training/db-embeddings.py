@@ -6,13 +6,13 @@ from sentence_transformers import SentenceTransformer
 from psycopg2 import sql
 import re
 
-def create_database(db_name, host="localhost", port="5432"):
+def create_database(db_name, user, password, host="db", port="5432"):
     '''
     Creates a database if one has not been created yet
     For initialization
     '''
     # Connect to the PostgreSQL server
-    conn = psycopg2.connect(database="postgres", host=host, port=port)
+    conn = psycopg2.connect(database="postgres", user=user, password=password, host=host, port=port)
     conn.autocommit = True  # Enable autocommit mode to execute the CREATE DATABASE command
 
     # Create a new cursor
@@ -31,7 +31,9 @@ def create_database(db_name, host="localhost", port="5432"):
 
 db_params = {
     'dbname': 'cisco_embeddings',
-    'host': '127.0.0.1',
+    'user': 'postgres',
+    'password': 'secret',
+    'host': 'db',
     'port': '5432'
 }
  
@@ -165,7 +167,7 @@ def insert_into_db(data):
             print("Successfully inserted embeddings into DB")
 
 def main():
-    create_database('cisco_embeddings', '127.0.0.1', '5432')
+    create_database('cisco_embeddings', 'postgres', 'secret', 'db', '5432')
 
     # 1. Segment the file content
     data = segment_file('./cleaned_file.txt')
@@ -175,5 +177,3 @@ def main():
     
 if __name__ == "__main__":
     main()
-
-
