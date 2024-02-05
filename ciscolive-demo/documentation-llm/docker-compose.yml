@@ -1,0 +1,32 @@
+version: '3'
+services:
+  db:
+    image: ankane/pgvector
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: cisco_embeddings
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+  app:
+    build: .
+    volumes:
+      - .:/app
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+    networks:
+      - app-network
+  ui:
+    build: ./ui
+    ports:
+      - "8080:80"
+    networks:
+      - app-network
+networks:
+  app-network:
+    driver: bridge
