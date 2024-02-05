@@ -1,33 +1,30 @@
-from flask import Flask, jsonify, request
+from flask import Flask, request, jsonify, make_response
 from llama_cpp import Llama
 from transformers import LlamaTokenizerFast
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import argparse
-import json
 from sentence_transformers import SentenceTransformer
 from flask_cors import CORS, cross_origin
 import psycopg2
-import nltk
-import re
 from collections import Counter
 
 app = Flask(__name__)
 CORS(app)
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-m", "--model", type=str, default="../llm/llama-2-7b-chat.Q4_K_M.gguf")
+parser.add_argument("-m", "--model", type=str, default="../llm/dolphin-2.6-mistral-7b-dpo-laser.Q4_K_M.gguf")
 args = parser.parse_args()
 
-llm = Llama(model_path=args.model, chat_format="llama-2", n_ctx=2048)
+llm = Llama(model_path=args.model, chat_format="chatml", n_ctx=2048)
 
 st_model = SentenceTransformer('paraphrase-MiniLM-L6-v2')
 
-tokenizer = LlamaTokenizerFast.from_pretrained("hf-internal-testing/llama-tokenizer")
-
 db_params = {
     'dbname': 'cisco_embeddings',
-    'host': 'localhost',
+    'user': 'postgres',
+    'password': 'secret',
+    'host': 'db',
     'port': '5432'
 }
 # TODO: Move to /util file
@@ -127,8 +124,15 @@ def find_similar_embeddings(target_embedding, db_params, limit=2):
 
 
 
-@app.route("/get_message", methods=['POST'])
+@app.route("/get_message", methods=['POST', 'OPTIONS'])
 def get_message():
+    if request.method == 'OPTIONS':
+        response = make_response()
+        response.headers['Access-Control-Allow-Origin'] = '*'  # Allow all domains, adjust if necessary
+        response.headers['Access-Control-Allow-Methods'] = 'POST, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'  # Add any headers your POST requests need
+        return response
+    
     if request.method == 'POST':
         user_input = request.json.get('text')
         
@@ -160,4 +164,4 @@ def get_message():
         return jsonify({"question":  user_input, "message": answer, "context": "ND Release Notes"})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0')
