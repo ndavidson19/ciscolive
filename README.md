@@ -12,68 +12,40 @@ git clone https://github.com/ndavidson19/ciscolive.git
 cd ciscolive/ciscolive-demo/documentation-llm
 ```
 
-### Install requirements
-It is recommended to create a virtual-env before installing dependencies. Or use a dependency manager such as anaconda.
-Ex.
+Next you must download the modelfile. Huggingface has so many models to choose from and all have very elaborate names. We will be choosing a finetuned version of Mistral v2 7B with a very funny name.  
+[https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGUF/blob/main/llama-2-7b-chat.Q4_K_M.gguf](https://huggingface.co/TheBloke/dolphin-2.6-mistral-7B-dpo-laser-GGUF/blob/main/dolphin-2.6-mistral-7b-dpo-laser.Q4_K_M.gguf)
 
-```
-python3 -m venv venv_name
-source venv_name/bin/activate
-```
+Details about the model training can be found at: https://huggingface.co/cognitivecomputations/dolphin-2.6-mistral-7b-dpo-laser
 
-```
-pip install -r requirements.txt
-```
-
-Next you must download the modelfile. We are using LlaMa-2 chat quantized to 4-bit by TheBloke.
-https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGUF/blob/main/llama-2-7b-chat.Q4_K_M.gguf
-
-Next move the modelfile to the correct directory /cisco-live/documentation-llm/backend/llm/llama-2-7b-chat.Q4_K_M.gguf
+Next create a directory called llm in the backend folder
 ```
 cd /cisco-live/documentation-llm/backend
 mkdir llm
 ```
 
-### Pull docker image for the postgres vector database
-This image has the pgvector extension for postgres that allows for fast vector embeddings and lookups.
-Make sure you have docker installed. https://docs.docker.com/engine/install/
-Use a new terminal window to run the following commands.
-
+Then move the modelfile to the correct directory ciscolive/ciscolive-demo/documentation-llm/backend/llm/dolphin-2.6-mistral-7b-dpo-laser.Q4_K_M.gguf
 ```
-docker pull ankane/pgvector
-docker run -p 5432:5432 -e POSTGRES_HOST_AUTH_METHOD=trust ankane/pgvector
+cd /cisco-live/documentation-llm/backend
+mkdir llm
 ```
 
-## Usage (required)
+## Usage 
 
-### Training Pipeline 
-This module contains two scripts that parse pdfs to text, clean the text, create vectorized embeddings, and insert the embeddings into the postgres database. 
----
+This entire application has been dockerized and can be run with just
 ```
-cd training
-python pdf.py
-python db-embeddings.py
+docker-compose up --build
 ```
-Once inserted make sure your docker image and daemon are running in order for the retrieval process to work.
+This starts three different services.
+1. The Vector Datastore (pgvector)
+   - This pulls a postgres image from ankane/pgvector that installs the correct extensions for allow vectors within postgres.
+2. The Flask serving APIs and VectorDB insertion
+   - This service starts a flask API endpoint route (/get_message) on port :5000 that allows for a user to send queries to the LLM being served using LlamaCPP (https://github.com/abetlen/llama-cpp-python) using script at /backend/main.py
+   - This service also parses the pdf living in /training/pdfs/ using /training/pdf.py and then inserts it into the database using /training/db-embeddings.py
+3. The UI service
+   - Uses nginx to start a basic webserver for the basic index.html file
 
-### Start the inference API's
-This module contains the API's neccessary in order to combine the user prompt with the retrieved information from the vector DB.
+Note: This is a very simplistic scaled down version of our full architecture we are running in production and should be treated as a starting point. Look into the llama-cpp-python OpenAI compatible webserver if you are going to be creating your own application.
 
----
-```
-cd backend/inference
-python main.py
-```
-
-### Load UI (html)
-Run the below command in the root directory of the project.
-```
-python -m http.server
-```
-Navigate to http://localhost:8000/ in your browser.
-To load the UI you just need to open the index.html file that lives in the cisco-live/documentation-llm/ui directory. 
-
-You should be all set to start asking questions!
 
 ## Licensing info
 
