@@ -57,7 +57,7 @@
             chatBox.innerHTML += `<div>User: ${inputBox.value}</div>`;
             
             // Fetch model response
-            const response = await fetch('http://127.0.0.1:5000/get_message', {
+            const response = await fetch('http://127.0.0.1:4141/get_message', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
