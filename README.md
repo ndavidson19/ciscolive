@@ -68,24 +68,32 @@ cd /cisco-live/documentation-llm/backend
 mkdir llm
 ```
 
-### Training Pipeline 
-This module contains two scripts that parse pdfs to text, clean the text, create vectorized embeddings, and insert the embeddings into the postgres database. 
----
-```
-cd training
-python pdf.py
-python db-embeddings.py
-```
-Once inserted make sure your docker image and daemon are running in order for the retrieval process to work.
+### Deployment Scripts
 
-### Start the inference API's
-This module contains the API's neccessary in order to combine the user prompt with the retrieved information from the vector DB.
+1. **Database Setup**:
+    - Run the PostgreSQL vector extension for embeddings:
+        ```bash
+        docker pull ankane/pgvector
+        docker run -p 5432:5432 -e POSTGRES_PASSWORD=secret -e POSTGRES_USER=postgres ankane/pgvector
+        ```
 
----
-```
-cd backend/inference
-python main.py
-```
+2. **Training Pipeline**:
+    - Navigate to the `training` directory.
+    - Run `pdf.py` to parse PDFs and `db-embeddings.py` to store embeddings:
+        ```bash
+        python pdf.py
+        python db-embeddings.py
+        ```
+
+3. **Start the Backend**:
+    - Use llama-cpp-python OpenAI compatible webserver for managing model serving.
+        ```bash
+        python3 -m llama_cpp.server --config_file /<USER_PATH>/documentation-llm/backend/llm/config.json
+        ```
+    - Start the backend services located in `backend/inference`:
+        ```bash
+        python main.py
+        ```
 
 ### Load UI (html)
 Run the below command in the root directory of the project.
