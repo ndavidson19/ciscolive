@@ -16,8 +16,6 @@ Next you must download the modelfile. Huggingface has so many models to choose f
 
 [Rocket 3B](https://huggingface.co/TheBloke/rocket-3B-GGUF/blob/main/rocket-3b.Q4_K_M.gguf)
 
-Details about the model training can be found at: https://huggingface.co/pansophic/rocket-3B
-
 Next create a directory called llm in the backend folder
 ```
 cd /cisco-live/documentation-llm/backend
