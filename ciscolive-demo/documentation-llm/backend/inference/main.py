@@ -25,7 +25,7 @@ db_params = {
     'user': 'postgres',
     'password': 'secret',
     'host': 'db',
-    'port': '5432'
+    'port': '5433'
 }
 # TODO: Move to /util file
 
@@ -164,4 +164,4 @@ def get_message():
         return jsonify({"question":  user_input, "message": answer, "context": "ND Release Notes"})
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+    app.run(port=4141, debug=True, host='0.0.0.0')
