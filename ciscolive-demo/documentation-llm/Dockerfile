@@ -17,7 +17,7 @@ COPY . /app
 
 
 # Expose the port the app runs on
-EXPOSE 5000
+EXPOSE 4141
 
 # Use the entrypoint script to boot the application, ensure it's executable
 ENTRYPOINT ["bash", "-c", "chmod +x /app/entrypoint.sh && /app/entrypoint.sh"]
