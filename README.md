@@ -48,6 +48,29 @@ This starts three different services.
 Note: This is a very simplistic scaled down version of our full architecture we are running in production and should be treated as a starting point. Look into the llama-cpp-python OpenAI compatible webserver if you are going to be creating your own application.
 
 
+## Manual Usage
+
+It is recommended to create a virtual-env before installing dependencies. Or use a dependency manager such as anaconda.
+Ex.
+
+```
+python3 -m venv venv_name
+source venv_name/bin/activate
+```
+
+```
+pip install -r requirements.txt
+```
+
+Next you must download the modelfile. We are using LlaMa-2 chat quantized to 4-bit by TheBloke.
+https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGUF/blob/main/llama-2-7b-chat.Q4_K_M.gguf
+
+Next move the modelfile to the correct directory /cisco-live/documentation-llm/backend/llm/llama-2-7b-chat.Q4_K_M.gguf
+```
+cd /cisco-live/documentation-llm/backend
+mkdir llm
+```
+
 ### Training Pipeline 
 This module contains two scripts that parse pdfs to text, clean the text, create vectorized embeddings, and insert the embeddings into the postgres database. 
 ---
