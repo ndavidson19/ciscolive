@@ -62,8 +62,7 @@ source venv_name/bin/activate
 pip install -r requirements.txt
 ```
 
-Next you must download the modelfile. We are using LlaMa-2 chat quantized to 4-bit by TheBloke.
-https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGUF/blob/main/llama-2-7b-chat.Q4_K_M.gguf
+Next you must download the modelfile. [Rocket 3B](https://huggingface.co/TheBloke/rocket-3B-GGUF/blob/main/rocket-3b.Q4_K_M.gguf)
 
 Next move the modelfile to the correct directory /cisco-live/documentation-llm/backend/llm/llama-2-7b-chat.Q4_K_M.gguf
 ```
