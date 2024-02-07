@@ -12,7 +12,7 @@ def create_database(db_name, user, password, host="localhost", port="5433"):
     For initialization
     '''
     # Connect to the PostgreSQL server
-    print("Creating database if one has not been created yet. Exception means database cisco_embeddings already exists and is ready for embeddings.
+    print("Creating database if one has not been created yet. Exception means database cisco_embeddings already exists and is ready for embeddings.")
     conn = psycopg2.connect(database="postgres", user=user, password=password, host=host, port=port)
     conn.autocommit = True  # Enable autocommit mode to execute the CREATE DATABASE command
 
