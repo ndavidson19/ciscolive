@@ -13,7 +13,7 @@ cd ciscolive/ciscolive-demo/documentation-llm
 ```
 
 Next you must download the modelfile. Huggingface has so many models to choose from and all have very elaborate names. We will be choosing a finetuned version of Mistral v2 7B with a very funny name.  
-[https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGUF/blob/main/llama-2-7b-chat.Q4_K_M.gguf](https://huggingface.co/TheBloke/dolphin-2.6-mistral-7B-dpo-laser-GGUF/blob/main/dolphin-2.6-mistral-7b-dpo-laser.Q4_K_M.gguf)
+[Dolphin-2.6-mistral-7b-dpo-laser](https://huggingface.co/TheBloke/dolphin-2.6-mistral-7B-dpo-laser-GGUF/blob/main/dolphin-2.6-mistral-7b-dpo-laser.Q4_K_M.gguf)
 
 Details about the model training can be found at: https://huggingface.co/cognitivecomputations/dolphin-2.6-mistral-7b-dpo-laser
 
