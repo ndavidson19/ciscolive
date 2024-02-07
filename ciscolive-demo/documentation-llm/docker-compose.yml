@@ -8,7 +8,7 @@ services:
       POSTGRES_PASSWORD: secret
       POSTGRES_DB: cisco_embeddings
     ports:
-      - "5432:5432"
+      - "5433:5433"
     networks:
       - app-network
   app:
@@ -16,7 +16,7 @@ services:
     volumes:
       - .:/app
     ports:
-      - "5000:5000"
+      - "4141:4141"
     depends_on:
       - db
     networks:
