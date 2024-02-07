@@ -164,4 +164,5 @@ def get_message():
         return jsonify({"question":  user_input, "message": answer, "context": "ND Release Notes"})
 
 if __name__ == '__main__':
+    print("Starting Server.")
     app.run(port=4141, debug=True, host='0.0.0.0')
