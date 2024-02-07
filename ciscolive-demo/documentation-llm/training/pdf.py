@@ -121,6 +121,7 @@ def main():
 
     for doc_data in all_data:
         # Combine header-content pairs into one document
+        print("Cleaning parsed text into structured format")
         doc_content = "\n".join([f"Source: {item['source_id']}\n{item['header']}\n{item['content']}" for item in doc_data])
         cleaned_doc = cleanup_individual_document(doc_content.strip())
         if cleaned_doc:
@@ -128,6 +129,7 @@ def main():
 
     cleaned_content = "\n\n".join(cleaned_documents)
     cleaned_content_per_doc = re.sub(r'\n\n+', '\n\n', cleaned_content)
+    print("Document cleaned succesfully!")
 
     # Writing directly to the final cleaned file
     with open('cleaned_file.txt', 'w') as f:
@@ -135,8 +137,8 @@ def main():
     
     print(f"Processed {len(cleaned_documents)} documents.")
     print("Script execution completed successfully.")
+    print("File: cleaned_text.txt has been created and is ready for use in generating embeddings.")
 
 
-    
 if __name__ == '__main__':
     main()
