@@ -13,7 +13,7 @@ app = Flask(__name__)
 CORS(app)
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-m", "--model", type=str, default="../llm/dolphin-2.6-mistral-7b-dpo-laser.Q4_K_M.gguf")
+parser.add_argument("-m", "--model", type=str, default="../llm/rocket-3b.Q4_K_M.gguf")
 args = parser.parse_args()
 
 llm = Llama(model_path=args.model, chat_format="chatml", n_ctx=2048)
