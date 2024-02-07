@@ -12,6 +12,7 @@ def create_database(db_name, user, password, host="localhost", port="5433"):
     For initialization
     '''
     # Connect to the PostgreSQL server
+    print("Creating database if one has not been created yet. Exception means database cisco_embeddings already exists and is ready for embeddings.
     conn = psycopg2.connect(database="postgres", user=user, password=password, host=host, port=port)
     conn.autocommit = True  # Enable autocommit mode to execute the CREATE DATABASE command
 
@@ -38,10 +39,12 @@ db_params = {
 }
  
 def read_text_file(file_path):
+    print("Parsing Text File")
     with open(file_path, 'r', encoding='utf-8') as file:
         return file.readlines()
 
 def generate_embeddings_for_parts(sources, headers, contents):
+    print("Generating embeddings for text")
     source_embeddings = generate_embeddings(sources)
     header_embeddings = generate_embeddings(headers)
     content_embeddings = generate_embeddings(contents)
@@ -53,6 +56,7 @@ def generate_embeddings(sentences, model_name='paraphrase-MiniLM-L6-v2'):
     return embeddings
 
 def segment_and_embed_content(file_path):
+    print("Parsing textfile")
     with open(file_path, 'r') as f:
         lines = f.readlines()
 
@@ -171,9 +175,11 @@ def main():
 
     # 1. Segment the file content
     data = segment_file('./cleaned_file.txt')
+    print("Content segmented successfully!)
 
     # 3. Insert into the database
     insert_into_db(data)
+    print("Embeddings are in the DB!)
     
 if __name__ == "__main__":
     main()
