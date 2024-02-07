@@ -48,6 +48,36 @@ This starts three different services.
 Note: This is a very simplistic scaled down version of our full architecture we are running in production and should be treated as a starting point. Look into the llama-cpp-python OpenAI compatible webserver if you are going to be creating your own application.
 
 
+### Training Pipeline 
+This module contains two scripts that parse pdfs to text, clean the text, create vectorized embeddings, and insert the embeddings into the postgres database. 
+---
+```
+cd training
+python pdf.py
+python db-embeddings.py
+```
+Once inserted make sure your docker image and daemon are running in order for the retrieval process to work.
+
+### Start the inference API's
+This module contains the API's neccessary in order to combine the user prompt with the retrieved information from the vector DB.
+
+---
+```
+cd backend/inference
+python main.py
+```
+
+### Load UI (html)
+Run the below command in the root directory of the project.
+```
+python -m http.server
+```
+Navigate to http://localhost:8000/ in your browser.
+To load the UI you just need to open the index.html file that lives in the cisco-live/documentation-llm/ui directory. 
+
+You should be all set to start asking questions!
+
+
 ## Licensing info
 
 A license is required for others to be able to use your code. An open source license is more than just a usage license, it is license to contribute and collaborate on code. Open sourcing code and contributing it to [Code Exchange](https://developer.cisco.com/codeexchange/) requires a commitment to maintain the code and help the community use and contribute to the code. 
