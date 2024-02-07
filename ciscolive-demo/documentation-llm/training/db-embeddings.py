@@ -6,7 +6,7 @@ from sentence_transformers import SentenceTransformer
 from psycopg2 import sql
 import re
 
-def create_database(db_name, user, password, host="localhost", port="5433"):
+def create_database(db_name, user, password, host="db", port="5433"):
     '''
     Creates a database if one has not been created yet
     For initialization
@@ -34,7 +34,7 @@ db_params = {
     'dbname': 'cisco_embeddings',
     'user': 'postgres',
     'password': 'secret',
-    'host': 'localhost',
+    'host': 'db',
     'port': '5433'
 }
  
@@ -171,7 +171,7 @@ def insert_into_db(data):
             print("Successfully inserted embeddings into DB")
 
 def main():
-    create_database('cisco_embeddings', 'postgres', 'secret', 'localhost', '5433')
+    create_database('cisco_embeddings', 'postgres', 'secret', 'db', '5433')
 
     # 1. Segment the file content
     data = segment_file('./cleaned_file.txt')
