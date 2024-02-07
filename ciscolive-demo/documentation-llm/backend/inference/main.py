@@ -24,7 +24,7 @@ db_params = {
     'dbname': 'cisco_embeddings',
     'user': 'postgres',
     'password': 'secret',
-    'host': 'db',
+    'host': 'localhost',
     'port': '5433'
 }
 # TODO: Move to /util file
