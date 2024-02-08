@@ -25,7 +25,7 @@ db_params = {
     'user': 'postgres',
     'password': 'secret',
     'host': 'db',
-    'port': '5433'
+    'port': '5432'
 }
 # TODO: Move to /util file
 
