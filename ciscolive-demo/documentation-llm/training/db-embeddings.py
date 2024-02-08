@@ -175,11 +175,11 @@ def main():
 
     # 1. Segment the file content
     data = segment_file('./cleaned_file.txt')
-    print("Content segmented successfully!)
+    print("Content segmented successfully!")
 
     # 3. Insert into the database
     insert_into_db(data)
-    print("Embeddings are in the DB!)
+    print("Embeddings are in the DB!")
     
 if __name__ == "__main__":
     main()
