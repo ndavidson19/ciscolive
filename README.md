@@ -74,7 +74,7 @@ mkdir llm
     - Run the PostgreSQL vector extension for embeddings:
         ```bash
         docker pull ankane/pgvector
-        docker run -p 5432:5432 -e POSTGRES_PASSWORD=secret -e POSTGRES_USER=postgres ankane/pgvector
+        docker run -p 5433:5433 -e POSTGRES_PASSWORD=secret -e POSTGRES_USER=postgres ankane/pgvector
         ```
 
 2. **Training Pipeline**:
