@@ -69,7 +69,6 @@ def extract_text_with_structure(filename, font_size_threshold=12, source_id=None
     return structured_data
 
 def cleanup_individual_document(doc):
-    print(doc[1])
     # Remove lines with copyright notices followed by pagination info
     copyright_pagination_pattern = r'^© \d{4} Cisco and/or its affiliates\. All rights reserved\. Page \d+ of \d+\s*'
     doc = re.sub(copyright_pagination_pattern, '', doc, flags=re.MULTILINE)
