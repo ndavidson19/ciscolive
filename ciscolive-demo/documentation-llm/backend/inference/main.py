@@ -156,10 +156,8 @@ def get_message():
                     }
                 ]
             )
-        # Assuming 'response' is your JSON object
         answer = output['choices'][0]['message']['content']
 
-        # Now 'answer' contains the text of the answer
         print(output)
         return jsonify({"question":  user_input, "message": answer, "context": "ND Release Notes"})
 
