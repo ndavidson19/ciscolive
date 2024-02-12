@@ -13,7 +13,7 @@ app = Flask(__name__)
 CORS(app)
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-m", "--model", type=str, default="../llm/rocket-3b.Q4_K_M.gguf")
+parser.add_argument("-m", "--model", type=str, default="../llm/model.gguf")
 args = parser.parse_args()
 
 llm = Llama(model_path=args.model, chat_format="chatml", n_ctx=2048)
@@ -110,7 +110,7 @@ def find_similar_embeddings(target_embedding, db_params, limit=2):
             query = """
             SELECT id, source, header, content, content_vector <-> CAST(%s AS vector) AS content_distance
             FROM embeddings
-            ORDER BY content_distance ASC
+            ORDER BY content_distance DESC
             LIMIT %s;
             """
             
@@ -121,7 +121,6 @@ def find_similar_embeddings(target_embedding, db_params, limit=2):
             results = results[:1]
             
     return [{'id': result[0], 'source': result[1], 'header': result[2], 'content': result[3]} for result in results]
-
 
 
 @app.route("/get_message", methods=['POST', 'OPTIONS'])
