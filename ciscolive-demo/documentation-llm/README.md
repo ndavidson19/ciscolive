@@ -24,7 +24,26 @@ cd /cisco-live/documentation-llm/backend
 mkdir llm
 ```
 
-Then move the modelfile to the correct directory ciscolive/ciscolive-demo/documentation-llm/backend/llm/dolphin-2.6-mistral-7b-dpo-laser.Q4_K_M.gguf
+The path below should like this once the  folder is updated with the  downloaded LLM Model. 
+
+(LLAMA_ENV) akram@ISHERIFF-M-RBNA backend % cd llm 
+(LLAMA_ENV) akram@ISHERIFF-M-RBNA llm % 
+(LLAMA_ENV) akram@ISHERIFF-M-RBNA llm % ls
+rocket-3b.Q4_K_M.gguf
+(LLAMA_ENV) akram@ISHERIFF-M-RBNA llm % ls -lh
+total 3337104
+-rw-r--r--  1 akram  staff   1.6G Feb  8 21:52 rocket-3b.Q4_K_M.gguf
+(LLAMA_ENV) akram@ISHERIFF-M-RBNA llm % 
+(LLAMA_ENV) akram@ISHERIFF-M-RBNA llm % 
+(LLAMA_ENV) akram@ISHERIFF-M-RBNA llm % 
+(LLAMA_ENV) akram@ISHERIFF-M-RBNA llm % ls
+rocket-3b.Q4_K_M.gguf
+(LLAMA_ENV) akram@ISHERIFF-M-RBNA llm % pwd
+/Users/akram/AKRAM_CODE_FOLDER/LLAMA_LLM_CPP/ciscolive/ciscolive-demo/documentation-llm/backend/llm
+(LLAMA_ENV) akram@ISHERIFF-M-RBNA llm % 
+
+
+Then move the modelfile to the correct directory  as per this  /<USER_PATH>/ciscolive/ciscolive-demo/documentation-llm/backend/llm/rocket-3b.Q4_K_M.gguf
 ```
 cd /cisco-live/documentation-llm/backend
 mkdir llm
@@ -41,6 +60,7 @@ This starts three different services.
    - This pulls a postgres image from ankane/pgvector that installs the correct extensions for allow vectors within postgres.
 2. The Flask serving APIs and VectorDB insertion
    - This service starts a flask API endpoint route (/get_message) on port :5000 that allows for a user to send queries to the LLM being served using LlamaCPP (https://github.com/abetlen/llama-cpp-python) using script at /backend/main.py
+   - Run the Docker  Hub Daemon  before running this  script  above.  Kindly check the ports are not used  by previous applications or else  release the ports & then  retry the same. 
    - This service also parses the pdf living in /training/pdfs/ using /training/pdf.py and then inserts it into the database using /training/db-embeddings.py
 3. The UI service
    - Uses nginx to start a basic webserver for the basic index.html file
