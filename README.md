@@ -2,7 +2,9 @@
 
 # LLM Documentation Demo for Nexus Dashboard
 
-A demo application showcasing how to run a local LLM on your own hardware. Includes samples that leverage open-source libraries (llama.cpp) and models (llama), as well as documentation from Nexus Dashboard.
+A demo application showcasing how to run a local LLM on your own hardware. Includes samples that leverage open-source libraries (llama.cpp) and models (llama), as well as documentation from Nexus Dashboard. This is a tiny example of how to use the LLM to search through documentation and return relevant information. If there is interest we can work on adding more features and functionality. Our current production system is much more complex and uses a variety of different technologies to serve the LLM. These include a streaming SSE web UI, an OpenAI compatible webserver, more advanced retrieval mechanisms such as hybrid search and re-ranking, and a new approach to vectorized embeddings. 
+
+For now, this repository will serve as a starting point for anyone interested in running their own LLM. The LLamaCPP library is a great starting point for anyone interested in running their own LLM. Right now the UI is simple and just displays the completion from the model. The retrieval is also simply just retrieving top cosine results from the database. If interested in a production application, contact me or look into different SOTA methods for RAG apps.
 
 ## Installation
 
@@ -11,23 +13,6 @@ First clone the project and navigate into project directory
 git clone https://github.com/ndavidson19/ciscolive.git
 cd ciscolive/ciscolive-demo/documentation-llm
 ```
-
-Next you must download the modelfile. Huggingface has so many models to choose from and all have very elaborate names. We will be choosing a DPO finetuned version of StableLM. This small 3B model punches above its weight when it comes to RAG applications. 
-
-[Rocket 3B](https://huggingface.co/TheBloke/rocket-3B-GGUF/blob/main/rocket-3b.Q4_K_M.gguf)
-
-Next create a directory called llm in the backend folder
-```
-cd /cisco-live/documentation-llm/backend
-mkdir llm
-```
-
-Then move the modelfile to the correct directory ciscolive/ciscolive-demo/documentation-llm/backend/llm/dolphin-2.6-mistral-7b-dpo-laser.Q4_K_M.gguf
-```
-cd /cisco-live/documentation-llm/backend
-mkdir llm
-```
-
 ## Usage 
 
 This entire application has been dockerized and can be run with just
@@ -47,6 +32,7 @@ Note: This is a very simplistic scaled down version of our full architecture we 
 
 
 ## Manual Usage
+Switch to the ciscolive-demo branch to run the application manually.
 
 It is recommended to create a virtual-env before installing dependencies. Or use a dependency manager such as anaconda.
 Ex.
@@ -63,6 +49,7 @@ pip install -r requirements.txt
 Next you must download the modelfile. [Rocket 3B](https://huggingface.co/TheBloke/rocket-3B-GGUF/blob/main/rocket-3b.Q4_K_M.gguf)
 
 Next move the modelfile to the correct directory /cisco-live/documentation-llm/backend/llm/llama-2-7b-chat.Q4_K_M.gguf
+
 ```
 cd /cisco-live/documentation-llm/backend
 mkdir llm
@@ -86,10 +73,6 @@ mkdir llm
         ```
 
 3. **Start the Backend**:
-    - Use llama-cpp-python OpenAI compatible webserver for managing model serving.
-        ```bash
-        python3 -m llama_cpp.server --config_file /<USER_PATH>/documentation-llm/backend/llm/config.json
-        ```
     - Start the backend services located in `backend/inference`:
         ```bash
         python main.py
