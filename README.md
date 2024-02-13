@@ -13,6 +13,8 @@ First clone the project and navigate into project directory
 git clone https://github.com/ndavidson19/ciscolive.git
 cd ciscolive/ciscolive-demo/documentation-llm
 ```
+Make sure that the ports :5000, :8080, and :5432 are freed on the machine before running the docker step.
+
 ## Usage 
 
 This entire application has been dockerized and can be run with just
