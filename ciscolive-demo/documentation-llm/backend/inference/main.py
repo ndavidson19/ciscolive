@@ -96,7 +96,7 @@ def process_user_query(user_query, db_params, st_model, limit):
 
     return top_sentences
 
-def find_similar_embeddings(target_embedding, db_params, limit=2):
+def find_similar_embeddings(target_embedding, db_params, limit=3):
     '''
     Finds the embeddings and corresponding text for the user text query from vector db
     '''
@@ -108,17 +108,17 @@ def find_similar_embeddings(target_embedding, db_params, limit=2):
             
             # Query the embeddings based on cosine similarity or L2 distance
             query = """
-            SELECT id, source, header, content, content_vector <-> CAST(%s AS vector) AS content_distance
+            SELECT id, source, header, content, 1 - (content_vector <=> CAST(%s AS vector)) AS content_distance
             FROM embeddings
-            ORDER BY content_distance DESC
+            ORDER BY content_distance
             LIMIT %s;
             """
             
             cur.execute(query, (target_embedding, limit))
             results = cur.fetchall()
 
-            # Select only the top 2 results 
-            results = results[:1]
+            # Select only the top 5 results 
+            results = results[:limit]
             
     return [{'id': result[0], 'source': result[1], 'header': result[2], 'content': result[3]} for result in results]
 
